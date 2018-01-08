@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>carousel</title>
+	<style>
+		html, body, ul, li {
+			margin: 0;
+			padding: 0;
+		}
+		li {
+			list-style: none;
+		}
+		a {
+			text-decoration: none;
+		}
+		.carousel {
+			position: relative;
+			width: 300px;
+			height: 200px;
+			overflow: hidden;
+		}
+		.carousel .img-ct {
+			position: absolute;
+		}
+		.carousel .img-ct img {
+			width: 300px;
+			height: 200px;
+		}
+		.carousel .img-ct:after {
+			content: '';
+			display: block;
+			clear: both;
+		}
+		.carousel .img-ct li {
+			float: left;
+		}
+		.btn {
+			width: 30px;
+			height: 30px;
+			line-height: 30px;
+			text-align: center;
+			background: #4e443c;
+			color: #fff;
+			border-radius: 50%;
+			box-shadow: 0 0 2px #999;
+			opacity: .4;
+			position: absolute;
+			top: 50%;
+			margin-top: -15px;
+		}
+		.btn:hover {
+			opacity: .6;
+		}
+		.btn-prev {
+			left: 10px;
+		}
+		.btn-next {
+			right: 10px;
+		}
+		.bullet-ct {
+			position: absolute;
+			width: 100%;
+			text-align: center;
+			bottom: 10px;
+		}
+		.bullet li {
+			width: 20px;
+			height: 5px;
+			display: inline-block;
+			cursor: pointer;
+			margin: 0 5px;
+			background: #fff;
+			border-radius: 3px;
+		}
+		.bullet .active {
+			background: #999;
+		}
+	</style>
+</head>
+<body>
+	<div class="carousel">
+		<ul class="img-ct">
+			<li data-index="0"><a href="#"><img src="imgs/1.jpg"></a></li>
+			<li data-index="1"><a href="#"><img src="imgs/2.jpg"></a></li>
+			<li data-index="2"><a href="#"><img src="imgs/3.jpg"></a></li>
+			<li data-index="3"><a href="#"><img src="imgs/4.jpg"></a></li>
+		</ul>
+		<div>
+			<a class="btn btn-prev" href="#">&lt;</a>
+			<a class="btn btn-next" href="#">&gt;</a>
+		</div>
+		<div class="bullet-ct">
+			<ul class="bullet">
+				<li class="active"></li>
+				<li></li>
+				<li></li>
+				<li></li>
+			</ul>
+		</div>
+	</div>
+
+<!-- 	<div class="carousel">
+		<ul class="img-ct">
+			<li data-index="0"><a href="#"><img src="imgs/1.jpg"></a></li>
+			<li data-index="1"><a href="#"><img src="imgs/2.jpg"></a></li>
+			<li data-index="2"><a href="#"><img src="imgs/3.jpg"></a></li>
+			<li data-index="3"><a href="#"><img src="imgs/4.jpg"></a></li>
+		</ul>
+		<div>
+			<a class="btn btn-prev" href="#">&lt;</a>
+			<a class="btn btn-next" href="#">&gt;</a>
+		</div>
+		<div class="bullet-ct">
+			<ul class="bullet">
+				<li class="active"></li>
+				<li></li>
+				<li></li>
+				<li></li>
+			</ul>
+		</div>
+	</div> -->
+
+	<script src="js/jquery.js"></script>
+	<script>
+		$(function () {
+			var ct = $('.img-ct'),
+				liArr = $('.img-ct li'),
+				prev = $('.btn-prev'),
+				next = $('.btn-next'),
+				bullet = $('.bullet'),
+				imgWidth = liArr.width(),
+				imgCount = liArr.length;
+			var clock;
+			var currIndex = 0;
+
+			ct.css('width', imgCount * imgWidth);
+
+			prev.on('click', function () {
+				stopAuto();
+				playPrev();
+				autoPlay();
+			});
+
+			next.on('click', function () {
+				stopAuto();
+				playNext();
+				autoPlay();
+			});
+
+			// bullet.delegate('li', 'click', function () {
+			// 	clearInterval(clock);
+
+			// 	bullet.children().removeClass('active');
+			// 	$(this).addClass('active');
+			// });
+
+			autoPlay();
+
+			function playNext() {
+				ct.animate({
+					'left': 0-imgWidth}, 
+					function () {
+						ct.append(ct.find('li').first());
+						ct.css('left', 0);
+						currIndex ++;
+
+						if (currIndex === imgCount) {
+							currIndex = 0;
+						}
+						setBullet();
+					});
+			}
+
+			function playPrev() {
+				ct.prepend(ct.find('li').last());
+				ct.css('left', 0-imgWidth);
+				ct.animate({'left': 0}, function () {
+					currIndex --;
+
+					if (currIndex < 0) {
+						currIndex = imgCount-1;
+					}
+
+					setBullet();
+				});
+			}
+
+			function autoPlay() {
+				clock = setInterval(function(){
+					playNext();
+				}, 3000);
+			}
+
+			function stopAuto() {
+				clearInterval(clock);
+			}
+
+			function setBullet() {
+				bullet.children()
+					  .removeClass('active')
+					  .eq(currIndex)
+					  .addClass('active');
+			}
+		})
+
+		// 存在问题：
+		// 1、变量可能会重名
+		// 2、页面上有多个轮播时无法复用
+	</script>
+</body>
+</html>

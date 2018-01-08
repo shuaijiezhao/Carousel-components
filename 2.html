@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>carousel 简单封装</title>
+	<style>
+		html, body, ul, li {
+			margin: 0;
+			padding: 0;
+		}
+		li {
+			list-style: none;
+		}
+		a {
+			text-decoration: none;
+		}
+		.carousel {
+			position: relative;
+			width: 300px;
+			height: 200px;
+			overflow: hidden;
+		}
+		.carousel .img-ct {
+			position: absolute;
+		}
+		.carousel .img-ct img {
+			width: 300px;
+			height: 200px;
+		}
+		.carousel .img-ct:after {
+			content: '';
+			display: block;
+			clear: both;
+		}
+		.carousel .img-ct li {
+			float: left;
+		}
+		.btn {
+			width: 30px;
+			height: 30px;
+			line-height: 30px;
+			text-align: center;
+			background: #4e443c;
+			color: #fff;
+			border-radius: 50%;
+			box-shadow: 0 0 2px #999;
+			opacity: .4;
+			position: absolute;
+			top: 50%;
+			margin-top: -15px;
+		}
+		.btn:hover {
+			opacity: .6;
+		}
+		.btn-prev {
+			left: 10px;
+		}
+		.btn-next {
+			right: 10px;
+		}
+		.bullet-ct {
+			position: absolute;
+			width: 100%;
+			text-align: center;
+			bottom: 10px;
+		}
+		.bullet li {
+			width: 20px;
+			height: 5px;
+			display: inline-block;
+			cursor: pointer;
+			margin: 0 5px;
+			background: #fff;
+			border-radius: 3px;
+		}
+		.bullet .active {
+			background: #999;
+		}
+	</style>
+</head>
+<body>
+	<div id="c1" class="carousel">
+		<ul class="img-ct">
+			<li data-index="0"><a href="#"><img src="imgs/1.jpg"></a></li>
+			<li data-index="1"><a href="#"><img src="imgs/2.jpg"></a></li>
+			<li data-index="2"><a href="#"><img src="imgs/3.jpg"></a></li>
+			<li data-index="3"><a href="#"><img src="imgs/4.jpg"></a></li>
+		</ul>
+		<div>
+			<a class="btn btn-prev" href="#">&lt;</a>
+			<a class="btn btn-next" href="#">&gt;</a>
+		</div>
+		<div class="bullet-ct">
+			<ul class="bullet">
+				<li class="active"></li>
+				<li></li>
+				<li></li>
+				<li></li>
+			</ul>
+		</div>
+	</div>
+
+	<div id="c2" class="carousel">
+		<ul class="img-ct">
+			<li data-index="0"><a href="#"><img src="imgs/1.jpg"></a></li>
+			<li data-index="1"><a href="#"><img src="imgs/2.jpg"></a></li>
+			<li data-index="2"><a href="#"><img src="imgs/3.jpg"></a></li>
+			<li data-index="3"><a href="#"><img src="imgs/4.jpg"></a></li>
+		</ul>
+		<div>
+			<a class="btn btn-prev" href="#">&lt;</a>
+			<a class="btn btn-next" href="#">&gt;</a>
+		</div>
+		<div class="bullet-ct">
+			<ul class="bullet">
+				<li class="active"></li>
+				<li></li>
+				<li></li>
+				<li></li>
+			</ul>
+		</div>
+	</div>
+
+	<script src="js/jquery.js"></script>
+	<script>
+		var Carousel = {
+			init: function (carousel) {
+				var ct = this.ct = carousel.find('.img-ct');
+				this.prev = carousel.find('.btn-prev');
+				this.next = carousel.find('.btn-next');
+				this.bullet = carousel.find('.bullet');
+				this.imgWidth = ct.find('li').width();
+				this.imgLength = ct.find('li').length;
+				this.clock = 0;
+				this.currIndex = 0;
+
+				ct.css('width', this.imgWidth*this.imgLength);
+				this.bind();
+				this.autoPlay();
+			},
+			bind: function () {
+				var _this = this;
+				this.prev.on('click', function () {
+					clearInterval(_this.clock);
+					_this.showPrev();
+					_this.autoPlay();
+				});
+				this.next.on('click', function () {
+					clearInterval(_this.clock);
+					_this.showNext();
+					_this.autoPlay();
+				});
+			},
+			showPrev: function () {
+				var _ct = this.ct;
+				var _this = this;
+				_ct.prepend(this.ct.find('li').last());
+				_ct.css('left', 0-_this.imgWidth);
+				_ct.animate({
+					'left': 0
+				}, function () {
+					_this.currIndex --;
+
+					if (_this.currIndex < 0) {
+						_this.currIndex = _this.imgLength - 1;
+					}
+
+					_this.setBullet();
+				});
+			},
+			showNext: function () {
+				var _ct = this.ct;
+				var _this = this;
+				_ct.animate({
+					'left': 0-this.imgWidth
+				}, function () {
+					_ct.append(_ct.find('li').first());
+					_ct.css('left', 0);
+					_this.currIndex ++;
+
+					if (_this.currIndex === _this.imgLength) {
+						_this.currIndex = 0;
+					}
+
+					_this.setBullet();
+				});
+			},
+			autoPlay: function () {
+				var _this = this;
+				this.clock = setInterval(function () {
+					_this.showNext();
+				}, 3000);
+			},
+			stopAuto: function () {
+				clearInterval(this.clock);
+			},
+			setBullet: function () {
+				var _this = this;
+				this.bullet.find('li')
+						   .removeClass('active')
+						   .eq(_this.currIndex)
+						   .addClass('active');
+			}
+		}
+
+		Carousel.init( $('#c1') );
+		// Carousel.init( $('#c2') );
+
+		// 存在问题：只能实例化一次，后面的会覆盖前面的
+
+	</script>
+</body>
+</html>
